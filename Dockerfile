@@ -1,8 +1,8 @@
-FROM postgres:17.2
+FROM postgres:18.2
 
 # Set environment variables
-ENV POSTGRES_VERSION=17
-ENV AGE_VERSION=PG17/v1.6.0-rc0
+ENV POSTGRES_VERSION=18
+ENV AGE_VERSION=PG18/v1.7.0-rc0
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \

@@ -1,8 +1,6 @@
 services:
   postgres:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: vishva123/postgres-for-ai
     container_name: ai
     environment:
       POSTGRES_USER: admin
