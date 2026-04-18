@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: vishva123/postgres-for-ai
+    # GHCR owner values must be lowercase to match the publish workflow output.
+    image: ghcr.io/${GHCR_OWNER:?set GHCR_OWNER}/postgres-for-ai:${GHCR_TAG:-main}
     container_name: ai
     environment:
       POSTGRES_USER: admin

@@ -1,6 +1,6 @@
 # 🧠 PostgreSQL for AI
 
-**PostgreSQL 17 with pgvector, Apache AGE, pg_cron & AI-ready extensions**
+**PostgreSQL 18 with pgvector, Apache AGE, pg_cron & AI-ready extensions**
 
 A production-ready **PostgreSQL Docker image optimized for AI workloads**, combining **vector search**, **graph queries**, and **scheduled pipelines** in a single database.
 
@@ -16,9 +16,9 @@ This setup is ideal for:
 
 ## 🚀 Features
 
-✅ **PostgreSQL 17.2**
+✅ **PostgreSQL 18.2**
 ✅ **pgvector (v0.8.1)** – Vector similarity search
-✅ **Apache AGE (PG17 / v1.6.0-rc0)** – Cypher graph queries
+✅ **Apache AGE (PG18 / v1.7.0-rc0)** – Cypher graph queries
 ✅ **pg_cron** – Scheduled jobs inside PostgreSQL
 ✅ **pg_stat_statements** – Query performance monitoring
 ✅ **AI-friendly schema & search_path**
@@ -43,7 +43,7 @@ This setup is ideal for:
 ## 🧩 Architecture
 
 ```text
-PostgreSQL 17
+PostgreSQL 18
 ├── Vector Search (pgvector)
 ├── Graph DB (Apache AGE)
 ├── Scheduled Jobs (pg_cron)
@@ -54,11 +54,27 @@ PostgreSQL 17
 
 ## 🐳 Docker Image
 
-Prebuilt image available on Docker Hub:
+Prebuilt images are published to GitHub Container Registry (GHCR):
 
 ```bash
-docker pull vishva123/postgres-for-ai:latest
+docker pull ghcr.io/<github-owner-lowercase>/postgres-for-ai:main
 ```
+
+Replace `<github-owner-lowercase>` with the lowercase GitHub repository owner that publishes the image. The GitHub Actions workflow lowercases the repository owner before publishing to GHCR, so forks publish to `ghcr.io/<lowercase-owner>/postgres-for-ai`.
+
+### Published tags
+
+* Pushes to `main` publish testable `main` and `sha-<commit>` tags
+* Release tags such as `v1.2.3` publish semver tags like `1.2.3`, `1.2`, `1`, plus `latest`
+
+### Platform support
+
+The published image is a multi-architecture image for:
+
+* `linux/amd64`
+* `linux/arm64`
+
+Apple Silicon Macs are intended to use the published image directly through the `linux/arm64` variant, assuming the GitHub Actions multi-architecture build completes successfully for that release.
 
 ---
 
@@ -67,13 +83,28 @@ docker pull vishva123/postgres-for-ai:latest
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/vishvaRam/Postgres-For-AI.git
+git clone https://github.com/<your-github-owner>/Postgres-For-AI.git
 cd Postgres-For-AI
 ```
 
 ### 2️⃣ Start services
 
 ```bash
+export GHCR_OWNER=<github-owner-lowercase>
+docker-compose up -d
+```
+
+`docker-compose.yml` uses the published GHCR image:
+
+```text
+ghcr.io/${GHCR_OWNER}/postgres-for-ai:${GHCR_TAG:-main}
+```
+
+Set `GHCR_OWNER` to the lowercase GitHub owner value used by GHCR. By default, Compose pulls the `main` tag so it works before the first release exists. After a release tag such as `v1.2.3` has been published, switch to `latest` or a specific semver tag if you want the release image:
+
+```bash
+export GHCR_OWNER=<github-owner-lowercase>
+export GHCR_TAG=latest
 docker-compose up -d
 ```
 

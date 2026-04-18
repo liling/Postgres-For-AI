@@ -1,0 +1,65 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2fb5eaedb877ecdcf87fbc32dc99fb16c7
+
+      - name: Normalize image owner
+        id: image
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: echo "name=ghcr.io/${REPOSITORY_OWNER,,}/postgres-for-ai" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce36039648d8ad51f5cc7b6e24f1e9700e589c05
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d17586c6a3c5dbb75f24c2c64d1b5c1886
+
+      - name: Log in to GHCR
+        uses: docker/login-action@4907a6d01c0e072dd4bac70d097271c2e280a938
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@030e881af82d6db4930bead8b4aa1108b087b6c5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,prefix=sha-,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Build and publish Docker image
+        uses: docker/build-push-action@bcafcac24b41007ee75e1ac39be41d9738f2330c
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
