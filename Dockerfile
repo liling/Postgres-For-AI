@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
 RUN cd /tmp && \
     git clone --branch v0.8.2 https://github.com/pgvector/pgvector.git && \
     cd pgvector && \
-    make OPTFLAGS="-mtune=generic" && \
+    make OPTFLAGS="-O2 -fPIC" && \
     make install && \
     cd .. && \
     rm -rf pgvector
@@ -46,7 +46,7 @@ RUN cd /tmp && \
 
 # Install pg_stat_statements for query performance monitoring
 RUN echo "shared_preload_libraries = 'pg_cron,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
-RUN echo "cron.database_name = 'ai'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "cron.database_name = 'postgres'" >> /usr/share/postgresql/postgresql.conf.sample
 
 COPY init/ /docker-entrypoint-initdb.d/
 
