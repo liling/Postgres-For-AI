@@ -11,11 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql
-      - ./init:/docker-entrypoint-initdb.d
-    command: >
-      postgres
-      -c shared_preload_libraries='pg_cron,pg_stat_statements'
-      -c cron.database_name='ai'
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

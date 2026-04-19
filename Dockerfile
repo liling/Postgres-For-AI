@@ -46,6 +46,9 @@ RUN cd /tmp && \
 
 # Install pg_stat_statements for query performance monitoring
 RUN echo "shared_preload_libraries = 'pg_cron,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "cron.database_name = 'ai'" >> /usr/share/postgresql/postgresql.conf.sample
+
+COPY init/ /docker-entrypoint-initdb.d/
 
 # Clean up build dependencies to reduce image size
 RUN apt-get purge -y --auto-remove \
