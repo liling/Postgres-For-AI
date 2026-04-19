@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
 RUN cd /tmp && \
     git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git && \
     cd pgvector && \
-    make OPTFLAGS="-march=armv8-a" && \
+    make OPTFLAGS="-mtune=generic -mno-sve -mno-sve2 -mno-pauth" && \
     make install && \
     cd .. && \
     rm -rf pgvector
