@@ -20,9 +20,9 @@ RUN apt-get update && apt-get install -y \
 
 # Install pgvector (use generic ARMv8 target to ensure Apple Silicon compatibility)
 RUN cd /tmp && \
-    git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git && \
+    git clone --branch v0.8.2 https://github.com/pgvector/pgvector.git && \
     cd pgvector && \
-    make OPTFLAGS="-mtune=generic -mno-sve -mno-sve2 -mno-pauth" && \
+    make OPTFLAGS="-mtune=generic" && \
     make install && \
     cd .. && \
     rm -rf pgvector
