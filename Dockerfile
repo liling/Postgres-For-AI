@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y \
     cmake \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pgvector
+# Install pgvector (use generic ARMv8 target to ensure Apple Silicon compatibility)
 RUN cd /tmp && \
     git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git && \
     cd pgvector && \
-    make && \
+    make OPTFLAGS="-march=armv8-a" && \
     make install && \
     cd .. && \
     rm -rf pgvector
