@@ -1,58 +1,56 @@
-# 🧠 PostgreSQL for AI
+# PostgreSQL for AI
 
-**PostgreSQL 18 with pgvector, Apache AGE, pg_cron & AI-ready extensions**
+**PostgreSQL 18 with pgvector, Apache AGE, pg_textsearch & AI-ready extensions**
 
-A production-ready **PostgreSQL Docker image optimized for AI workloads**, combining **vector search**, **graph queries**, and **scheduled pipelines** in a single database.
+A production-ready PostgreSQL Docker image optimized for AI workloads, combining vector search, graph queries, full-text search (including Chinese), and BM25 ranking in a single database.
 
-This setup is ideal for:
+Ideal for:
 
-* **RAG (Retrieval-Augmented Generation)**
-* **Hybrid Vector + Graph search**
-* **AI metadata storage**
-* **LLM memory & embeddings**
-* **Agentic & knowledge-graph systems**
+- RAG (Retrieval-Augmented Generation)
+- Hybrid Vector + Graph + Full-text search
+- AI metadata storage
+- LLM memory & embeddings
+- Agentic & knowledge-graph systems
+- Chinese text search & analysis
 
----
+## Features
 
-## 🚀 Features
+- **PostgreSQL 18.2**
+- **pgvector (v0.8.2)** – Vector embeddings & similarity search
+- **Apache AGE (PG18 / v1.7.0-rc0)** – Cypher graph queries
+- **pg_textsearch (BM25)** – Full-text search with BM25 ranking
+- **zhparser + SCWS** – Chinese full-text search parser
+- **pg_stat_statements** – Query performance monitoring
+- **pg_trgm** – Trigram text similarity
+- **uuid-ossp** – UUID generation
+- AI-friendly schema & search_path
+- Plug-and-play with Docker Compose
+- Compatible with LightRAG & LangChain
 
-✅ **PostgreSQL 18.2**
-✅ **pgvector (v0.8.1)** – Vector similarity search
-✅ **Apache AGE (PG18 / v1.7.0-rc0)** – Cypher graph queries
-✅ **pg_cron** – Scheduled jobs inside PostgreSQL
-✅ **pg_stat_statements** – Query performance monitoring
-✅ **AI-friendly schema & search_path**
-✅ **Plug-and-play with Docker Compose**
-✅ **Compatible with LightRAG & LangChain**
+## Included Extensions
 
----
+| Extension              | Version              | Purpose                                |
+| ---------------------- | -------------------- | -------------------------------------- |
+| `pgvector`             | v0.8.2               | Vector embeddings & similarity search  |
+| `age`                  | v1.7.0-rc0           | Property graph database (Cypher)       |
+| `pg_textsearch`        | 1.2.0-dev            | Full-text search with BM25 ranking     |
+| `pg_stat_statements`   | 1.12                 | Query analytics                        |
+| `pg_trgm`              | 1.6                  | Text similarity                        |
+| `uuid-ossp`            | 1.1                  | UUID generation                        |
+| `zhparser` (+ SCWS)    | -                    | Chinese text segmentation & search     |
 
-## 📦 Included Extensions
-
-| Extension              | Purpose                               |
-| ---------------------- | ------------------------------------- |
-| `pgvector`           | Vector embeddings & similarity search |
-| `age`                | Property graph database (Cypher)      |
-| `pg_cron`            | Background scheduling & pipelines     |
-| `pg_stat_statements` | Query analytics                       |
-| `pg_trgm`            | Text similarity                       |
-| `uuid-ossp`          | UUID generation                       |
-
----
-
-## 🧩 Architecture
+## Architecture
 
 ```text
 PostgreSQL 18
 ├── Vector Search (pgvector)
 ├── Graph DB (Apache AGE)
-├── Scheduled Jobs (pg_cron)
+├── Full-text Search (pg_textsearch + BM25)
+│   └── Chinese Parser (zhparser + SCWS)
 └── Query Monitoring (pg_stat_statements)
 ```
 
----
-
-## 🐳 Docker Image
+## Docker Image
 
 Prebuilt images are published to GitHub Container Registry (GHCR):
 
@@ -60,137 +58,78 @@ Prebuilt images are published to GitHub Container Registry (GHCR):
 docker pull ghcr.io/<github-owner-lowercase>/postgres-for-ai:main
 ```
 
-Replace `<github-owner-lowercase>` with the lowercase GitHub repository owner that publishes the image. The GitHub Actions workflow lowercases the repository owner before publishing to GHCR, so forks publish to `ghcr.io/<lowercase-owner>/postgres-for-ai`.
+Replace `<github-owner-lowercase>` with the lowercase GitHub repository owner that publishes the image.
 
 ### Published tags
 
-* Pushes to `main` publish testable `main` and `sha-<commit>` tags
-* Release tags such as `v1.2.3` publish semver tags like `1.2.3`, `1.2`, `1`, plus `latest`
+- Pushes to `main` publish `main` and `sha-<commit>` tags
+- Release tags such as `v1.2.3` publish semver tags like `1.2.3`, `1.2`, `1`, plus `latest`
 
 ### Platform support
 
-The published image is a multi-architecture image for:
+Multi-architecture image for `linux/amd64` and `linux/arm64`.
 
-* `linux/amd64`
-* `linux/arm64`
+## Quick Start
 
-Apple Silicon Macs are intended to use the published image directly through the `linux/arm64` variant, assuming the GitHub Actions multi-architecture build completes successfully for that release.
-
----
-
-## ▶️ Quick Start (Docker Compose)
-
-### 1️⃣ Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/<your-github-owner>/Postgres-For-AI.git
 cd Postgres-For-AI
 ```
 
-### 2️⃣ Start services
+### 2. Start services
 
 ```bash
 export GHCR_OWNER=<github-owner-lowercase>
-docker-compose up -d
+docker compose up -d
 ```
 
-`docker-compose.yml` uses the published GHCR image:
-
-```text
-ghcr.io/${GHCR_OWNER}/postgres-for-ai:${GHCR_TAG:-main}
-```
-
-Set `GHCR_OWNER` to the lowercase GitHub owner value used by GHCR. By default, Compose pulls the `main` tag so it works before the first release exists. After a release tag such as `v1.2.3` has been published, switch to `latest` or a specific semver tag if you want the release image:
+Set `GHCR_OWNER` to the lowercase GitHub owner value used by GHCR. After a release tag is published, switch to `latest` or a specific semver tag:
 
 ```bash
 export GHCR_OWNER=<github-owner-lowercase>
 export GHCR_TAG=latest
-docker-compose up -d
+docker compose up -d
 ```
 
-### 3️⃣ Services exposed
+### 3. Services
 
 | Service    | URL                       |
 | ---------- | ------------------------- |
-| PostgreSQL | `localhost:5432`        |
-| pgAdmin    | `http://localhost:5050` |
+| PostgreSQL | `localhost:5432`          |
+| pgAdmin    | `http://localhost:5050`   |
 
-**Default credentials**
+**Default credentials**: `admin` / `admin`, database `ai`
+
+## Database Initialization
+
+On first startup, `init/001_extensions.sql` automatically:
+
+- Ensures `public` schema exists
+- Installs pgvector into `public` schema (required by LightRAG)
+- Enables all extensions
+- Creates Chinese text search configuration `zh` using zhparser
+
+### Verified extensions
+
+```sql
+SELECT extname, extversion FROM pg_extension ORDER BY extname;
+```
 
 ```text
-User: admin
-Password: admin
-Database: ai
+age                | 1.7.0
+pg_stat_statements | 1.12
+pg_textsearch      | 1.2.0-dev
+pg_trgm            | 1.6
+plpgsql            | 1.0
+uuid-ossp          | 1.1
+vector             | 0.8.2
 ```
 
----
+## Example Use Cases
 
-## 🛠️ Database Initialization
-
-On first startup, the following are automatically configured via
-`init/001_extensions.sql`:
-
-### ✅ Public schema ensured
-
-```sql
-CREATE SCHEMA IF NOT EXISTS public;
-```
-
-### ✅ pgvector installed in `public`
-
-```sql
-CREATE EXTENSION vector SCHEMA public;
-```
-
-This is required for tools like **LightRAG**, which expect:
-
-```text
-public.vector
-```
-
-### ✅ Optimized search_path
-
-```sql
-ALTER DATABASE ai SET search_path = ag_catalog, public, "$user";
-```
-
-* `ag_catalog` → Apache AGE
-* `public` → pgvector compatibility
-
-### ✅ Extensions enabled
-
-```sql
-CREATE EXTENSION age;
-CREATE EXTENSION pg_cron;
-CREATE EXTENSION pg_stat_statements;
-CREATE EXTENSION pg_trgm;
-CREATE EXTENSION "uuid-ossp";
-```
-
----
-
-## 🧪 Verify Installation
-
-```sql
-SELECT * FROM pg_extension;
-```
-
-Expected:
-
-```text
-vector
-age
-pg_cron
-pg_stat_statements
-pg_trgm
-uuid-ossp
-```
-
----
-
-## 🧠 Example Use Cases
-
-### 🔹 Vector Search
+### Vector Search
 
 ```sql
 CREATE TABLE embeddings (
@@ -200,7 +139,7 @@ CREATE TABLE embeddings (
 );
 ```
 
-### 🔹 Graph Queries (Apache AGE)
+### Graph Queries (Apache AGE)
 
 ```sql
 SELECT * FROM cypher('graph', $$
@@ -208,72 +147,44 @@ SELECT * FROM cypher('graph', $$
 $$) AS (n agtype);
 ```
 
-### 🔹 Scheduled Jobs
+### Chinese Full-text Search
 
 ```sql
-SELECT cron.schedule(
-  'nightly_cleanup',
-  '0 2 * * *',
-  $$DELETE FROM logs WHERE created_at < now() - interval '30 days'$$
-);
+-- The 'zh' configuration is created automatically
+-- Insert test data
+CREATE TABLE articles (id SERIAL PRIMARY KEY, content TEXT);
+INSERT INTO articles (content) VALUES ('PostgreSQL 是一个强大的开源数据库');
+
+-- Search using zhparser
+SELECT * FROM articles
+WHERE to_tsvector('zh', content) @@ to_tsquery('zh', '数据库');
 ```
 
----
+### BM25 Full-text Search (pg_textsearch)
 
-## 🤖 Designed for AI Frameworks
+```sql
+-- Create a BM25 index on a table
+CALL paradedb.create_bm25(
+  index_name => 'articles_idx',
+  table_name => 'articles',
+  key_field => 'id',
+  text_fields => '{content: {}}'
+);
+
+-- Search with BM25 scoring
+SELECT * FROM articles_idx.search('content:数据库');
+```
+
+## Designed for AI Frameworks
 
 Tested & compatible with:
 
-* **LightRAG**
-* **LangChain**
-* **LlamaIndex**
-* **Custom RAG pipelines**
-* **Hybrid Graph + Vector search**
+- **LightRAG**
+- **LangChain**
+- **LlamaIndex**
+- **Custom RAG pipelines**
+- **Hybrid Graph + Vector + Full-text search**
 
----
+## Author
 
-## 🧩 Why This Setup?
-
-Most AI stacks require **multiple databases**:
-
-* Vector DB
-* Graph DB
-* Relational DB
-* Scheduler
-
-👉 This project **unifies everything inside PostgreSQL**.
-
----
-
-## 📌 Roadmap
-
-* [ ] HNSW indexing examples
-* [ ] AGE + pgvector hybrid queries
-* [ ] Benchmark scripts
-* [ ] Helm / Kubernetes support
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-* Issues
-* PRs
-* Performance improvements
-* AI-specific patterns
-
----
-
-## ⭐ If You Find This Useful
-
-Give the repo a ⭐ and feel free to share!
-
----
-
-## 👤 Author
-
-**Vishva Ram**
-AI Engineer | Generative AI | RAG | Graph + Vector Systems
-
-🔗 GitHub: [https://github.com/vishvaRam](https://github.com/vishvaRam)
+**Ling Li**

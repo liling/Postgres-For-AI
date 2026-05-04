@@ -51,6 +51,14 @@ RUN cd /tmp && \
     ./configure && make && make install && \
     cd /tmp && rm -rf scws-1.2.3
 
+# Install zhparser (Chinese full-text search parser for PostgreSQL)
+RUN cd /tmp && \
+    git clone https://github.com/amutu/zhparser.git && \
+    cd zhparser && \
+    SCWS_HOME=/usr/local make && \
+    make install && \
+    cd .. && rm -rf zhparser
+
 # Install pg_textsearch
 RUN cd /tmp && \
     git clone https://github.com/timescale/pg_textsearch.git && \
@@ -60,8 +68,7 @@ RUN cd /tmp && \
     cd .. && rm -rf pg_textsearch
 
 # Install pg_stat_statements for query performance monitoring
-RUN echo "shared_preload_libraries = 'pg_cron,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
-RUN echo "cron.database_name = 'postgres'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "shared_preload_libraries = 'pg_textsearch,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
 
 COPY init/ /docker-entrypoint-initdb.d/
 
