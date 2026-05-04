@@ -44,6 +44,21 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf pg_cron
 
+# Install SCWS (dependency for zhparser Chinese full-text search)
+RUN cd /tmp && \
+    wget -q -O - http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 | tar xjf - && \
+    cd scws-1.2.3 && \
+    ./configure && make && make install && \
+    cd /tmp && rm -rf scws-1.2.3
+
+# Install pg_textsearch
+RUN cd /tmp && \
+    git clone https://github.com/timescale/pg_textsearch.git && \
+    cd pg_textsearch && \
+    make && \
+    make install && \
+    cd .. && rm -rf pg_textsearch
+
 # Install pg_stat_statements for query performance monitoring
 RUN echo "shared_preload_libraries = 'pg_cron,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
 RUN echo "cron.database_name = 'postgres'" >> /usr/share/postgresql/postgresql.conf.sample
