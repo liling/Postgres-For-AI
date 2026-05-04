@@ -15,5 +15,6 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS pg_textsearch;
 
 -- Register zhparser as a text search parser
+CREATE EXTENSION IF NOT EXISTS zhparser;
 CREATE TEXT SEARCH CONFIGURATION zh (PARSER = zhparser);
 ALTER TEXT SEARCH CONFIGURATION zh ADD MAPPING FOR n,v,a,i,e,l,j WITH simple;

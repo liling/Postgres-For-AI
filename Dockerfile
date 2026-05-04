@@ -55,8 +55,8 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     git clone https://github.com/amutu/zhparser.git && \
     cd zhparser && \
-    SCWS_HOME=/usr/local make && \
-    make install && \
+    SCWS_HOME=/usr/local make PG_CONFIG=/usr/bin/pg_config && \
+    SCWS_HOME=/usr/local make install PG_CONFIG=/usr/bin/pg_config && \
     cd .. && rm -rf zhparser
 
 # Install pg_textsearch
