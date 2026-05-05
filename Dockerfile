@@ -67,8 +67,25 @@ RUN cd /tmp && \
     make install && \
     cd .. && rm -rf pg_textsearch
 
+# Install vchord-suite (vchord, vchord-bm25, pg-tokenizer)
+ARG VCHORD_VERSION=1.1.1
+ARG VCHORDBM25_VERSION=0.3.0
+ARG PGTOKENIZER_VERSION=0.1.1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget ca-certificates && \
+    wget https://github.com/tensorchord/VectorChord/releases/download/${VCHORD_VERSION}/postgresql-${POSTGRES_VERSION}-vchord_${VCHORD_VERSION}-1_$(dpkg --print-architecture).deb -P /tmp && \
+    wget https://github.com/tensorchord/VectorChord-bm25/releases/download/${VCHORDBM25_VERSION}/postgresql-${POSTGRES_VERSION}-vchord-bm25_${VCHORDBM25_VERSION}-1_$(dpkg --print-architecture).deb -P /tmp && \
+    wget https://github.com/tensorchord/pg_tokenizer.rs/releases/download/${PGTOKENIZER_VERSION}/postgresql-${POSTGRES_VERSION}-pg-tokenizer_${PGTOKENIZER_VERSION}-1_$(dpkg --print-architecture).deb -P /tmp && \
+    apt-get install -y /tmp/postgresql-${POSTGRES_VERSION}-vchord_${VCHORD_VERSION}-1_$(dpkg --print-architecture).deb && \
+    apt-get install -y /tmp/postgresql-${POSTGRES_VERSION}-vchord-bm25_${VCHORDBM25_VERSION}-1_$(dpkg --print-architecture).deb && \
+    apt-get install -y /tmp/postgresql-${POSTGRES_VERSION}-pg-tokenizer_${PGTOKENIZER_VERSION}-1_$(dpkg --print-architecture).deb && \
+    apt-get remove -y wget ca-certificates && \
+    apt-get purge -y --auto-remove && \
+    rm -rf /tmp/* /var/lib/apt/lists/*
+
 # Install pg_stat_statements for query performance monitoring
-RUN echo "shared_preload_libraries = 'pg_textsearch,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "shared_preload_libraries = 'vchord,vchord_bm25,pg_tokenizer,pg_textsearch,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
 
 COPY init/ /docker-entrypoint-initdb.d/
 
@@ -82,3 +99,5 @@ RUN apt-get purge -y --auto-remove \
 
 # Expose PostgreSQL port
 EXPOSE 5432
+
+CMD ["postgres", "-c", "shared_preload_libraries=vchord,vchord_bm25,pg_tokenizer,pg_textsearch,pg_stat_statements", "-c", "search_path=\"$user, public, bm25_catalog, tokenizer_catalog\""]
