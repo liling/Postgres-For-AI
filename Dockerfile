@@ -99,5 +99,3 @@ RUN apt-get purge -y --auto-remove \
 
 # Expose PostgreSQL port
 EXPOSE 5432
-
-CMD ["postgres", "-c", "shared_preload_libraries=vchord,vchord_bm25,pg_tokenizer,pg_textsearch,pg_stat_statements", "-c", "search_path=\"$user, public, bm25_catalog, tokenizer_catalog\""]

@@ -23,3 +23,6 @@ ALTER TEXT SEARCH CONFIGURATION zh ADD MAPPING FOR n,v,a,i,e,l,j WITH simple;
 CREATE EXTENSION IF NOT EXISTS vchord;
 CREATE EXTENSION IF NOT EXISTS vchord_bm25;
 CREATE EXTENSION IF NOT EXISTS pg_tokenizer;
+
+-- Set vchord recommended search_path after all extensions are created
+ALTER DATABASE postgres SET search_path TO "$user", public, bm25_catalog, tokenizer_catalog;
