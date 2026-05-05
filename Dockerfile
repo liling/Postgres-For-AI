@@ -85,7 +85,7 @@ RUN apt-get update && \
     rm -rf /tmp/* /var/lib/apt/lists/*
 
 # Install pg_stat_statements for query performance monitoring
-RUN echo "shared_preload_libraries = 'vchord,vchord_bm25,pg_tokenizer,pg_textsearch,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
+RUN echo "shared_preload_libraries = 'vchord,vchord_bm25,pg_tokenizer,pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample
 
 COPY init/ /docker-entrypoint-initdb.d/
 
